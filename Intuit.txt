@@ -1,0 +1,378 @@
+SPREADING FIRE
+There is a 2D plane of size N* M. There is fire which is there at K different points in the 2D plane. From each of these K points, the fire is spreading in a circular form with the radius of the fire increasing by time. So, if at t=1, the radius if fire was 2, at t=2, it becomes 4, at t=3, it become 6 and so on. "t" denotes time here.
+Help us determine, the number of points (points are denoted by {x,y}, where both x and y are whole numbers, and are within the plane) which would not be touched by the fire
+Constraints
+1 <= N <= 1000 | 1<= M <= 1000 1<=K<=5 1 <= R <= 10 1 <= T <= 100
+****************
+Code:
+int sqr(int x) {
+    return x * x;
+}
+
+vector<int> solution(int n, int m, int r, int t, const vector<vector<int>> &f) {
+    const int rr = sqr(r);
+    vector<int> v;
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < m; ++j) {
+            int temp = INT_MAX;
+            for (const auto& v : f) {
+                temp = min(temp, (int) sqrt((sqr(i - v[0]) + sqr(j - v[1]) + rr - 1) / rr + .5));
+            }
+            if (temp <= t) {
+                v.push_back(temp);
+            }
+        }
+    }
+    sort(v.begin(), v.end());
+    vector<int> ans(t + 1, n * m);
+    for (int i = 0, j = 0; i <= t; ++i) {
+        for (; j < v.size() && v[j] <= i; ++j)
+        ;
+        ans[i] -= j;
+    }
+    return ans;
+}
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+CIRCUS FIRE 1
+jimmy is a stunt master in a circus which is in shape of matrix m*n. Jimmy is preparing for new stunt where fire starts from a point (fx,fy . Jimmy starts from a point (ix,iy) and reaches point (jx,jy). Jimmy moves 1 step in a second either horizontally or vertically. Fire spreads from the initial point with speed of 1 step per sec along x and y axes of initial starting point Jimmy have t combinations of start,end and fire start place but he is not sure if all places can make him reach endpoint without touching fire. Could you help jimmy in identifying which combinations can he chose for the stunt.
+Constraints : 1 <= m , n <= 1000 1 <= t <= 10
+***********
+def helper(fx, ix, jx):
+    if (ix - fx) * (jx - fx) <= 0:
+        return 0
+    ix = abs(ix - fx)
+    jx = abs(iy - fy)
+    if jx >= ix:
+        return jx
+    d = ix - jx
+    t = (ix + 1) / 2
+    if t <= d:
+        return t
+    return ix - d - d
+
+def solution(fx, fy, ix, iy, jx, jy):
+    return max(helper(fx, ix, jx), helper(fy, iy, jy)) > abs(ix - jx) + abs(iy - jy)
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+SCHEDULING TRAINING
+
+A candidate named Alice is onboarding to Intuit Intuit demands a required set of trainings to completed. There are 2 trainings for Alice to complete. Each of these trainings has M courses within them which have to be completed. The courses within a training need to be completed in the order they were created. Each course takes time to complete Once you start the course, either you spend the entire time in completing the course, or you would need to re-take the entire course.
+
+Alice already has some P prior commitments. She wants to complete all the trainings as carly as possible. Help her determine the order in which she can take these trainings Output the minimum number of days required for her to complete all the trainings. Output-1 if it is not possible to complete the trainings with her schedule
+
+Input Format:
+The first line has integer M. denoting the total number of courses within both trainings
+Next 2 lines each having M space separated integers, stating the time taken for a course within the training.
+Next line denotes the number of prior commitment that Alice has, denoted by P
+Next P lines contain 2 space separated integers, stating the starting time and ending time of those commitments (24 hr scale)
+************
+Code:
+#include <bits/stdc++.h>
+using namespace std;
+#define f(i, n) for (int i = 0; i < n; i++)
+#define pb push_back
+
+vector<int> merge(vector<vector<int>> &v)
+{
+    vector<pair<int, bool>> pr;
+    int n = v.size();
+
+    f(i,n)
+    {
+        pr.pb({v[i][0], false});
+        pr.pb({v[i][1], true});
+    }
+    sort(pr.begin(), pr.end());
+
+    vector<vector<int>> ans;
+    int t = 0, f = 0, start = INT_MAX, x = pr.size(), i = 0;
+    while (i < x)
+    {
+        if (pr[i].second == false)
+        {
+            start = min(pr[i].first, start);
+            t++;
+        }
+        if (pr[i].second == true)
+            f++;
+        if (t == f)
+        {
+            ans.push_back({start, pr[i].first});
+            start = INT_MAX;
+            t = f = 0;
+        }
+        i++;
+    }
+    vector<int> fin;
+    int sz = ans.size();
+
+    f(i,sz-1) fin.pb(ans[i + 1][0] - ans[i][1]);
+
+    if (ans[sz - 1][1] < 24)
+        fin.pb(24 - ans[sz - 1][1]);
+    return fin;
+}
+int dp[105][105][12];
+int sol(int i, int j, int k, vector<int> &f, int n, vector<int> &v, vector<int> &u)
+{
+    int sz = f.size();
+    if (i >= n && j >= n)
+        return 1;
+    if (dp[i][j][k] != -1)
+        return dp[i][j][k];
+    int res = 1001;
+    if (i < n)
+    {
+        if (v[i] <= f[k])
+            res = min(res, (k == sz - 1) + sol(i + 1, j, (k + 1) % sz, f, n, v, u));
+        else
+            res = min(res, (k == sz - 1) + sol(i, j, (k + 1) % sz, f, n, v, u));
+    }
+    if (j < n)
+    {
+        if (u[j] <= f[k])
+            res = min(res, (k == sz - 1) + sol(i, j + 1, (k + 1) % sz, f, n, v, u));
+        else
+            res = min(res, (k == sz - 1) + sol(i, j, (k + 1) % sz, f, n, v, u));
+    }
+    return dp[i][j][k] = res;
+}
+
+void solve()
+{
+    int n;
+    cin >> n;
+    vector<int> v(n);
+    vector<int> u(n);
+    memset(dp, -1, sizeof(dp));
+    f(i, n) cin >> v[i];
+    f(i, n) cin >> u[i];
+    int p;
+    cin >> p;
+    vector<vector<int>> t(p, vector<int>(2));
+    f(i, p) cin >> t[i][0] >> t[i][1];
+    vector<int> tg = merge(t);
+    int mx = *max_element(tg.begin(), tg.end());
+    int mx1 = max(*max_element(v.begin(), v.end()), *max_element(u.begin(), u.end()));
+    if (mx1 > mx)
+        cout << -1 << endl;
+    else
+        cout << sol(0, 0, 0, tg, n, v, u) << endl;
+}
+
+int main()
+{
+    solve();
+    return 0;
+}
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+SMART GARDENER
+Help Sam optimise the cost of watering the garden
+*******************
+Code:
+int minTaps(int n, vector<int> &ranges, vector<int> &costs)
+{
+    const int INF = 1e9;
+    vector<long long> dp(n + 1, INF);
+
+    dp[0] = 0;
+
+    for (int i = 0; i <= n; i++)
+    {
+        int tapStart = max(0, i - ranges[i]);
+        int tapEnd = min(n, i + ranges[i]);
+
+        for (int j = tapStart; j <= tapEnd; j++)
+        {
+            long long temp = dp[j] < INF ? dp[j] + costs[i] : dp[j];
+            dp[tapEnd] = min(dp[tapEnd], temp);
+        }
+    }
+
+    if (dp[n] == INF) return -1;
+
+    return dp[n];
+}
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+CREDENTIAL VERIFICATION - I
+Alice verifies certificates. Alice gets a reward for each verification request he completes. However, the reward for each verification request reduces everyday and the reward will be provided on the day of completion with the estimated value of that day. It's not mandatory to verify all the requests and also a verification request picked up needs to be verified completely before moving on to the next one. Help Alice maximize his rewards
+******************
+Code:
+int solution(const vector<int> &a, const vector<int> &b, const vector<int> &c) {
+    const int n = a.size();
+    vector<int> ind(n);
+    for (int i = 0; i < n; ++i) {
+        ind[i] = i;
+    }
+    sort(ind.begin(), ind.end(), [&](int x, int y) {
+        return b[x] < b[y];
+    });
+    const int s = 1 << n;
+    vector<int> t(s), dp(s), trailing(s);
+    for (int i = 0; i < n; ++i) {
+        trailing[1 << i] = i;
+    }
+    for (int i = 1; i < s; ++i) {
+        const int prev = i & (i - 1), x = ind[trailing[i & (-i)]];
+        t[i] = t[prev] + c[x];
+        dp[i] = dp[prev] + a[x] - b[x] * t[i];
+    }
+    return *max_element(dp.begin(), dp.end()); 
+}
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+LOST IN THE WOODS
+***********************
+Code:
+int n;
+    cin>>n;
+    vector<char> s(n);
+    for(int i=0;i<n;i++) cin>>s[i];
+    string res = "";
+    if(n == 1){
+        cout<<"W"<<"\n";
+        return 0;
+    }
+    for(int i=0;i<n-1;i++){
+        if(s[i+1] == '*'){
+            res += "J";
+            while(s[i+1] == '*') i++;
+        }else res += "W";
+    }
+    cout<<res<<"\n";
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+FURIOUS DHONI
+*****************
+Code(Python):
+n,m = map(int, input().split())
+mat = [list(map(int,input().split())) for i in range(n)]
+min_mat = [[float('inf')]*m for i in range(n)]
+min_mat[0][0] = mat[0][0]
+res=0
+mx = mat[0][0]
+for i in range(1,n):
+	min_mat[i][0] = min(mat[i][0],min_mat[i-1][0])
+	res = max(res, mat[i][0] - min_mat[i-1][0])
+for i in range(1,m):
+	min_mat[0][i] = min(mat[0][i],min_mat[0][i-1])
+	res = max(res, mat[0][i] - min_mat[0][i-1])
+for i in range(1,n):
+	for j in range(1,m):
+		min_mat[i][j] = min(min_mat[i-1][j],min_mat[i][j-1],mat[i][j])
+		res = max(res,mat[i][j]-min(min_mat[i-1][j],min_mat[i][j-1]))
+print(res)
+
+Code(Cpp):
+int n, m;
+    cin >> n >> m;
+    
+    vector<vector<int>> mat(n, vector<int>(m));
+    vector<vector<int>> min_mat(n, vector<int>(m, INT_MAX));
+    
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < m; ++j) {
+            cin >> mat[i][j];
+        }
+    }
+    
+    min_mat[0][0] = mat[0][0];
+    int res = 0;
+    int mx = mat[0][0];
+    
+    for (int i = 1; i < n; ++i) {
+        min_mat[i][0] = min(mat[i][0], min_mat[i-1][0]);
+        res = max(res, mat[i][0] - min_mat[i-1][0]);
+    }
+    
+    for (int i = 1; i < m; ++i) {
+        min_mat[0][i] = min(mat[0][i], min_mat[0][i-1]);
+        res = max(res, mat[0][i] - min_mat[0][i-1]);
+    }
+    
+    for (int i = 1; i < n; ++i) {
+        for (int j = 1; j < m; ++j) {
+            min_mat[i][j] = min(min(min_mat[i-1][j], min_mat[i][j-1]), mat[i][j]);
+            res = max(res, mat[i][j] - min(min_mat[i-1][j], min_mat[i][j-1]));
+        }
+    }
+    
+    cout << res << endl;
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+KINGS DREAM
+***************
+Code(Python):
+def solve(N, m):
+    S = list(range(1, m + 1))
+    return S * (N // m) + S[:N % m]
+Code (Cpp):
+vector<int> solve(int N, int m)
+{
+    vector<int> S;
+    for (int i = 1; i <= m; ++i)
+    {
+        S.push_back(i);
+    }
+
+    vector<int> result;
+    int repetitions = N / m;
+    for (int i = 0; i < repetitions; ++i)
+    {
+        result.insert(result.end(), S.begin(), S.end());
+    }
+
+    int remainder = N % m;
+    result.insert(result.end(), S.begin(), S.begin() + remainder);
+
+    return result;
+}
+
+Alt:
+vector<int> generate_good_line(int n, int m) {
+    vector<int> line;
+
+    if (n == 1) {
+        line.push_back(1);
+        return line;
+    }
+
+    for (int i = 1; i <= min(n, m); ++i) {
+        line.push_back(i);
+    }
+
+    while (line.size() < n) {
+        for (int i : line) {
+            line.push_back(i);
+            if (line.size() == n) {
+                break;
+            }
+        }
+    }
+
+    line.resize(n);
+    return line;
+}
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+LOTTERY PUZZLE - https://leetcode.com/problems/longest-consecutive-sequence/
+****************
+Code:
+int longestConsecutive(vector<int>& v) {
+        int n = v.size();
+        set<int> hashSet;
+
+        for(int i : v)
+        hashSet.insert(i);
+        int longestStreak=0;
+        for(int i : v){
+            if(!hashSet.count(i-1)){
+
+                int tempNum = i;
+                int currentStreak=0;
+                while(hashSet.count(tempNum)){
+                    tempNum++;
+                    currentStreak++;
+                }
+                longestStreak = max(longestStreak,currentStreak);
+            }
+        }
+        return longestStreak;
+    }
+
