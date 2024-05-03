@@ -1,89 +1,43 @@
 #include <bits/stdc++.h>
-#define intt long long int
-#define ll long long
-#define ld long double
-#define MOD 1000000007
-#define f(i, n) for (intt i = 0; i < n; i++)
-#define ff(i, a, b) for (intt i = a; i < b; i++)
-#define pb push_back
-#define ii pair<intt, intt>
-#define vi vector<intt>
-#define vvi vector<vector<intt>>
-#define vpi vector<pair<intt, intt>>
-#define fi first
-#define sec second
-#define all(x) x.begin(), x.end()
-#define allr(x) x.rbegin(), x.rend()
-#define minv *min_element
-#define maxv *max_element
-#define rt return
-#define um unordered_map
-#define acc accumulate
-#define sz(x) x.size()
-#define ub upper_bound
-#define lb lower_bound
 using namespace std;
-
-// Right Left Up Down
-intt dx[] = {0, 0, 1, -1};
-intt dy[] = {1, -1, 0, 0};
-intt n, m;
-
-bool possible(int x, int y)
-{
-    return (x < n && x >= 0 && y < m && y >= 0);
-}
-
-bool isPrime(intt n)
-{
-    if (n <= 1)
-        return false;
-    if (n == 2 || n == 3)
-        return true;
-    if (n % 2 == 0 || n % 3 == 0)
-        return false;
-    for (intt i = 5; i <= sqrt(n); i = i + 6)
-        if (n % i == 0 || n % (i + 2) == 0)
-            return false;
-    return true;
-}
+#define intt long long
 
 void solve()
 {
     intt n;
     cin >> n;
-    vi v(n);
-    f(i, n) cin >> v[i];
+    vector<intt> v(n);
+    for (intt i = 0; i < n; i++)
+        cin >> v[i];
 
-    int i = 0, j = 0, max_len = 0, curr_len = 0;
+    map<intt, intt> mp;
 
-    map<intt, intt> freq;
+    intt i = 0;
+    intt j = 0;
+    intt curr = 0;
+    intt maxi = 0;
 
     while (j < n)
     {
-        if (freq.find(v[j]) == freq.end() or freq[v[j]] == 0)
+        if (mp.find(v[j]) == mp.end() or mp[v[j]] == 0)
         {
-            freq[v[j]]++;
-            curr_len++;
-            max_len = max(max_len, curr_len);
+            mp[v[j]]++;
+            curr++;
+            maxi = max(maxi, curr);
             j++;
         }
         else
         {
-            curr_len--;
-            freq[v[i]]--;
+            curr--;
+            mp[v[i]]--;
             i++;
         }
     }
-    cout << max_len;
+    cout << maxi << "\n";
 }
 
-int32_t main()
+signed main()
 {
-    ios_base::sync_with_stdio(false);
-    cin.tie(0);
-    cout.tie(0);
-    // intt tc;cin>>tc;while(tc--)
     solve();
     return 0;
 }

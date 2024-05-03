@@ -1,86 +1,54 @@
 #include <bits/stdc++.h>
-#define intt long long int
-#define ll long long
-#define ld long double
-#define MOD 1000000007
-#define f(i, n) for (intt i = 0; i < n; i++)
-#define ff(i, a, b) for (intt i = a; i < b; i++)
-#define pb push_back
-#define ii pair<intt, intt>
-#define vi vector<intt>
-#define vvi vector<vector<intt>>
-#define vpi vector<pair<intt, intt>>
-#define fi first
-#define sec second
-#define all(x) x.begin(), x.end()
-#define allr(x) x.rbegin(), x.rend()
-#define minv *min_element
-#define maxv *max_element
-#define rt return
-#define um unordered_map
-#define acc accumulate
-#define sz(x) x.size()
-#define ub upper_bound
-#define lb lower_bound
-#define mt multiset
-#define rs resize
 using namespace std;
 
-// Right Left Up Down
-intt dx[] = {0, 0, 1, -1};
-intt dy[] = {1, -1, 0, 0};
-intt n, m, a, b;
-
-bool possible(int x, int y)
+int main()
 {
-    return (x < n && x >= 0 && y < m && y >= 0);
-}
+    ios::sync_with_stdio(false); // Disable synchronization with C stdio for faster I/O
+    cin.tie(NULL);               // Untie cin and cout for faster I/O
 
-vi v, v1, v2, v3, v4;
-vi dp(200001);
+    int street_len; // Total length of the street
+    int light_num;  // Number of traffic lights to be added
+    cin >> street_len >> light_num;
 
-bool isPrime(intt n)
-{
-    if (n <= 1)
-        return false;
-    if (n == 2 || n == 3)
-        return true;
-    if (n % 2 == 0 || n % 3 == 0)
-        return false;
-    for (intt i = 5; i <= sqrt(n); i = i + 6)
-        if (n % i == 0 || n % (i + 2) == 0)
-            return false;
-    return true;
-}
+    // A set to store the positions of traffic lights
+    // It starts with the boundaries of the street (0 and street_len)
+    set<int> lights{0, street_len};
 
-void solve()
-{
-    cin >> n >> m;
-    set<intt> q1{0, n};
-    mt<intt> q2{n};
-    f(i, m)
+    // A multiset to store the lengths of all the passages between traffic lights
+    // Initialize with the full length of the street since there are no lights yet
+    multiset<int> dist{street_len};
+
+    // Loop to add each traffic light
+    for (int l = 0; l < light_num; l++)
     {
-        cin >> a;
-        auto it = q1.ub(a);
-        auto it1 = it;
-        --it1;
-        q2.erase(q2.find(*it - *it1));
-        q2.insert(a - *it1);
-        q2.insert(*it - a);
-        q1.insert(a);
+        int pos; // Position of the new traffic light
+        cin >> pos;
 
-        auto ans = q2.end();
-        --ans;
-        cout << *ans << " ";
+        // Find the upper bound for the given position in the 'lights' set
+        // This is the first element greater than 'pos'
+        auto it1 = lights.upper_bound(pos);
+
+        // 'it2' is the previous element from 'it1'
+        // This gets the interval between two existing lights where the new light will be placed
+        auto it2 = it1;
+        --it2;
+
+        // Remove the previous interval from the 'dist' multiset
+        // This is the interval that will be split by adding the new traffic light
+        dist.erase(dist.find(*it1 - *it2)); // (*it1 - *it2) is the length of the current interval
+
+        // Add the new intervals created by the addition of the traffic light
+        dist.insert(pos - *it2); // New interval from 'it2' to 'pos'
+        dist.insert(*it1 - pos); // New interval from 'pos' to 'it1'
+
+        // Insert the new traffic light position into the 'lights' set
+        lights.insert(pos);
+
+        // Find the maximum interval in 'dist'
+        auto ans = dist.end();
+        --ans; // The last element in the multiset is the largest interval
+
+        // Output the longest passage without traffic lights after this addition
+        cout << *ans << " "; // Print the longest distance
     }
-}
-
-int32_t main()
-{
-    ios_base::sync_with_stdio(false);
-    cin.tie(0);
-    cout.tie(0);
-    // intt tc;cin>>tc;while(tc--)
-    solve();
-    return 0;
 }
