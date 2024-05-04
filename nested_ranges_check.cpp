@@ -1,75 +1,146 @@
+// #include <bits/stdc++.h>
+
+// using namespace std;
+// #define ln '\n'
+// typedef long long ll;
+
+// struct range
+// {
+
+//     // The left and right ends of the range and its index in
+//     // the input order
+//     int l, r, index;
+
+//     // Overloads the < operator for sorting
+//     bool operator<(const range &other) const
+//     {
+//         // If left ends are equal, the range with larger
+//         // right end comes first
+//         if (l == other.l)
+//             return r > other.r;
+//         // Otherwise, the range with smaller left end comes
+//         // first
+//         return l < other.l;
+//     }
+// };
+
+// int main()
+// {
+//     int n;
+//     cin >> n;
+//     vector<range> ranges(n);
+//     vector<bool> contained(n);
+//     vector<bool> contains(n);
+//     for (int i = 0; i < n; i++)
+//     {
+//         cin >> ranges[i].l;
+//         cin >> ranges[i].r;
+//         ranges[i].index = i;
+//     }
+
+//     sort(ranges.begin(), ranges.end());
+
+//     // for (int i = 0; i < n; i++)
+//     // {
+//     //     cout << ranges[i].l << " " << ranges[i].r << "\n";
+//     // }
+
+//     int maxEnd = 0;
+//     for (int i = 0; i < n; i++)
+//     {
+//         if (ranges[i].r <= maxEnd)
+//             contained[ranges[i].index] = true;
+//         maxEnd = max(maxEnd, ranges[i].r);
+//     }
+//     int minEnd = 1e9 + 1;
+//     for (int i = n - 1; i >= 0; i--)
+//     {
+//         if (ranges[i].r >= minEnd)
+//             contains[ranges[i].index] = true;
+//         minEnd = min(minEnd, ranges[i].r);
+//     }
+//     for (int i = 0; i < n; i++)
+//         cout << contains[i] << " ";
+//     cout << ln;
+//     for (int i = 0; i < n; i++)
+//         cout << contained[i] << " ";
+//     cout << ln;
+// }
+
 #include <bits/stdc++.h>
-#include <ext/pb_ds/assoc_container.hpp>
-#include <ext/pb_ds/tree_policy.hpp>
-#define intt long long int
-#define ll long long
-#define ld long double
-#define MOD 1000000007
-#define f(i, n) for (intt i = 0; i < n; i++)
-#define ff(i, a, b) for (intt i = a; i < b; i++)
-#define pb push_back
-#define ii pair<intt, intt>
-#define vi vector<intt>
-#define vvi vector<vector<intt>>
-#define vpi vector<pair<intt, intt>>
-#define fi first
-#define sec second
-#define all(x) x.begin(), x.end()
-#define allr(x) x.rbegin(), x.rend()
-#define minv *min_element
-#define maxv *max_element
-#define rt return
-#define um unordered_map
-#define acc accumulate
-#define sz(x) x.size()
-#define ub upper_bound
-#define lb lower_bound
-#define mt multiset
-#define rs resize
 using namespace std;
-using namespace __gnu_pbds;
 
-// Right Left Up Down
-intt dx[] = {0, 0, 1, -1};
-intt dy[] = {1, -1, 0, 0};
-intt n, m, a, b;
-
-bool possible(int x, int y)
+// Comparator to sort by the first element, with a fallback to reverse sorting on the second element
+static bool cmp(const tuple<long long, long long, int> &a, const tuple<long long, long long, int> &b)
 {
-    return (x < n && x >= 0 && y < m && y >= 0);
+    if (get<0>(a) == get<0>(b))
+    {
+        return get<1>(a) > get<1>(b);
+    }
+    return get<0>(a) < get<0>(b);
 }
-
-vi v, v1, v2, v3, v4;
-vi dp(200001);
-
-bool isPrime(intt n)
-{
-    if (n <= 1)
-        return false;
-    if (n == 2 || n == 3)
-        return true;
-    if (n % 2 == 0 || n % 3 == 0)
-        return false;
-    for (intt i = 5; i <= sqrt(n); i = i + 6)
-        if (n % i == 0 || n % (i + 2) == 0)
-            return false;
-    return true;
-}
-
-// oset<int>s:s.find_by_order(k):Kth element in s,s.order_of_key(k):Number of item strictly lessthan k
-template <class T>
-using oset = tree<T, null_type, less<T>, rb_tree_tag, tree_order_statistics_node_update>;
 
 void solve()
 {
+    int n;
+    cin >> n;
+    vector<tuple<long long, long long, int>> segments;
+
+    for (int i = 0; i < n; i++)
+    {
+        long long a, b;
+        cin >> a >> b;
+        segments.emplace_back(a, b, i);
+    }
+
+    // Sort by start, then by end (descending)
+    sort(segments.begin(), segments.end(), cmp);
+
+    // Initialize contains and contained arrays
+    vector<bool> contains(n, false);
+    vector<bool> contained(n, false);
+
+    // Track max end and min end
+    long long maxEnd = 0;
+    long long minEnd = LLONG_MAX;
+
+    // Check for segments that are contained by another segment
+    for (const auto &segment : segments)
+    {
+        if (get<1>(segment) <= maxEnd)
+        {
+            contained[get<2>(segment)] = true;
+        }
+        maxEnd = max(maxEnd, get<1>(segment));
+    }
+
+    // Check for segments that contain another segment
+    for (int i = n - 1; i >= 0; i--)
+    {
+        if (get<1>(segments[i]) >= minEnd)
+        {
+            contains[get<2>(segments[i])] = true;
+        }
+        minEnd = min(minEnd, get<1>(segments[i]));
+    }
+
+    // Output contains array
+    for (bool val : contains)
+    {
+        cout << (val ? "1 " : "0 ");
+    }
+    cout << "\n";
+
+    // Output contained array
+    for (bool val : contained)
+    {
+        cout << (val ? "1 " : "0 ");
+    }
+    cout << "\n";
 }
 
-int32_t main()
+int main()
 {
-    ios_base::sync_with_stdio(false);
-    cin.tie(0);
-    cout.tie(0);
-    // intt tc;cin>>tc;while(tc--)
     solve();
     return 0;
 }

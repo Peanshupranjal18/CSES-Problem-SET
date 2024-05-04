@@ -1,85 +1,78 @@
+// #include <bits/stdc++.h>
+// using namespace std;
+// #define intt long long
+
+// void solve() {
+//     // Read input
+//     intt n; // number of children
+//     cin >> n; // read the value of n
+
+//     // Initialize variables
+//     intt a = 1, b = 0; // variables used for index calculation
+
+//     // Loop until there are no children left
+//     while (n > 0) {
+//         // Output every second child (even indices)
+//         for (intt i = 2; i <= n; i += 2) {
+//             // Compute and print the position of the child to be removed
+//             cout << a * i + b << ' ';
+//         }
+
+//         // If the current number of children is odd, handle the last child
+//         if (n & 1) { // if n is odd
+//             cout << a + b << ' '; // print the position of the first child
+//             b += a; // adjust the offset for the next iteration
+//         } else {
+//             b -= a; // adjust the offset for the even case
+//         }
+
+//         // Update the multiplier for the next level of recursion
+//         a <<= 1; // double the value of 'a'
+
+//         // Reduce the number of children for the next iteration
+//         n >>= 1; // divide 'n' by 2
+//     }
+// }
+
+// signed main()
+// {
+//     solve();
+//     return 0;
+// }
+
 #include <bits/stdc++.h>
-#define intt long long int
-#define ll long long
-#define ld long double
-#define MOD 1000000007
-#define f(i, n) for (intt i = 0; i < n; i++)
-#define ff(i, a, b) for (intt i = a; i < b; i++)
-#define pb push_back
-#define ii pair<intt, intt>
-#define vi vector<intt>
-#define vvi vector<vector<intt>>
-#define vpi vector<pair<intt, intt>>
-#define fi first
-#define sec second
-#define all(x) x.begin(), x.end()
-#define allr(x) x.rbegin(), x.rend()
-#define minv *min_element
-#define maxv *max_element
-#define rt return
-#define um unordered_map
-#define acc accumulate
-#define sz(x) x.size()
-#define ub upper_bound
-#define lb lower_bound
-#define mt multiset
-#define rs resize
 using namespace std;
-
-// Right Left Up Down
-intt dx[] = {0, 0, 1, -1};
-intt dy[] = {1, -1, 0, 0};
-intt n, m, a, b;
-
-bool possible(int x, int y)
-{
-    return (x < n && x >= 0 && y < m && y >= 0);
-}
-
-vi v, v1, v2, v3, v4;
-vi dp(200001);
-
-bool isPrime(intt n)
-{
-    if (n <= 1)
-        return false;
-    if (n == 2 || n == 3)
-        return true;
-    if (n % 2 == 0 || n % 3 == 0)
-        return false;
-    for (intt i = 5; i <= sqrt(n); i = i + 6)
-        if (n % i == 0 || n % (i + 2) == 0)
-            return false;
-    return true;
-}
+#define intt long long
 
 void solve()
 {
+    intt n;
     cin >> n;
-    a = 1, b = 0;
-    while (n > 0)
+    queue<intt> q;
+
+    for (intt i = 1; i <= n; i++)
+        q.push(i);
+
+    bool flag = false;
+
+    while (!q.empty())
     {
-        for (intt i = 2; i <= n; i += 2)
+        intt ele = q.front();
+        q.pop();
+        if (flag)
         {
-            cout << a * i + b << ' ';
+            cout << ele << " ";
         }
-        if (n & 1)
-            cout << a + b << ' ', b += a;
         else
-            b -= a;
-        a <<= 1;
-        n >>= 1;
+        {
+            q.push(ele);
+        }
+        flag = !flag;
     }
 }
 
-int32_t main()
+signed main()
 {
-    ios_base::sync_with_stdio(false);
-    cin.tie(0);
-    cout.tie(0);
-    // intt tc;
-    // cin >> tc;
-    // while (tc--)
     solve();
     return 0;
 }
