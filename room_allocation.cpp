@@ -1,57 +1,67 @@
-#include <bits/stdc++.h>
+#include <algorithm>
+#include <iostream>
+#include <queue>
 using namespace std;
-#define intt long long
 
-void solve()
+const int MAX_N = 2e5;
+
+int N;
+int ans[MAX_N];
+vector<pair<pair<int, int>, int>> v(MAX_N);
+
+int main()
 {
-    intt n;
-    cin >> n;
+    cin >> N;
+    v.resize(N);
 
-    vector<tuple<intt, intt, intt>> v;
+    // input
 
-    for (intt i = 0; i < n; i++)
+    for (int i = 0; i < N; i++)
     {
-        intt a, b;
-        cin >> a >> b;
-        v.emplace_back(a, -1, i);
-        v.emplace_back(b, 1, i);
+        cin >> v[i].first.first >> v[i].first.second;
+        v[i].second = i; // store the original index
     }
 
+    // sorting the values
     sort(v.begin(), v.end());
-    intt dp[n + 1];
 
-    vector<intt> rooms;
-    intt occ = 0, max_rooms = 0, in_or_out, ind;
-    for (auto ele : v)
+    int rooms = 0, last_room = 0;
+    priority_queue<pair<int, int>> pq; // min heap to store departure times.
+    for (int i = 0; i < N; i++)
     {
-        in_or_out = get<1>(ele);
-        ind = get<2>(ele);
-        if (in_or_out == 1)
+        if (pq.empty())
         {
-            // going out so add that room number to rooms
-            rooms.push_back(dp[ind]);
-        }
-        else if (occ == rooms.size())
-        {
-            // no more vacant rooms , so increase number of rooms
-            dp[ind] = ++max_rooms;
+            last_room++;
+            // make the departure time negative so that we create a min heap
+            // (cleanest way to do a min heap... default is max in c++)
+            pq.push(make_pair(-v[i].first.second, last_room));
+            ans[v[i].second] = last_room;
         }
         else
         {
-            // give a room and increase occupancy count
-            dp[ind] = rooms[occ++];
-        }
-    }
-    cout << max_rooms << "\n";
-    for (intt i = 1; i <= n; i++)
-    {
-        cout << dp[i] << " ";
-    }
-    return;
-}
+            // accessing the minimum departure time
+            pair<int, int> minimum = pq.top();
+            if (-minimum.first < v[i].first.first)
+            {
+                pq.pop();
+                pq.push(make_pair(-v[i].first.second, minimum.second));
+                ans[v[i].second] = minimum.second;
+            }
 
-signed main()
-{
-    solve();
-    return 0;
+            else
+            {
+                last_room++;
+                pq.push(make_pair(-v[i].first.second, last_room));
+                ans[v[i].second] = last_room;
+            }
+        }
+
+        rooms = max(rooms, int(pq.size()));
+    }
+
+    cout << rooms << "\n";
+    for (int i = 0; i < N; i++)
+    {
+        cout << ans[i] << " ";
+    }
 }
