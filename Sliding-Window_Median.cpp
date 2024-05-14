@@ -1,40 +1,77 @@
 #include <bits/stdc++.h>
-#include <ext/pb_ds/assoc_container.hpp>
-#include <ext/pb_ds/tree_policy.hpp>
 using namespace std;
-using namespace __gnu_pbds;
-
-typedef tree<pair<int, int>, null_type, less<pair<int, int>>, rb_tree_tag,
-             tree_order_statistics_node_update>
-    ordered_set;
 #define intt long long
 
-intt n, k, t;
+intt n, k;
+multiset<intt> low;
+multiset<intt> up;
+
+void ins(intt value)
+{
+    intt a = *low.rbegin(); // current median
+    if (a < value)
+    {
+        up.insert(value);
+        if (up.size() > k / 2)
+        {
+            low.insert(*up.begin());
+            up.erase(up.find(*up.begin()));
+        }
+    }
+    else
+    {
+        low.insert(value);
+        if (low.size() > (k + 1) / 2)
+        {
+            up.insert(*low.rbegin());
+            low.erase(low.find(*low.rbegin()));
+        }
+    }
+}
+
+void er(intt value)
+{
+    if (up.find(value) != up.end())
+        up.erase(up.find(value));
+    else
+        low.erase(low.find(value));
+    if (low.empty())
+    {
+        low.insert(*up.begin());
+        up.erase(up.find(*up.begin()));
+    }
+}
 
 void solve()
 {
     cin >> n >> k;
-
     vector<intt> v(n);
 
-    ordered_set oset;
-
     for (intt i = 0; i < n; i++)
-    {
-        intt u;
-        cin >> u;
-        v[i] = u;
+        cin >> v[i];
 
-        oset.insert({u, t++});
-        if (i >= k)
+    low.insert(v[0]);
+
+    for (intt i = 1; i < k; i++)
+        ins(v[i]);
+
+    cout << *low.rbegin() << " ";
+
+    for (intt i = k; i < n; i++)
+    {
+        if (k == 1)
         {
-            oset.erase(oset.lower_bound({v[i - k], 0}));
+            ins(v[i]);
+            er(v[i - k]);
         }
-        if (i >= k - 1)
+        else
         {
-            cout << (*oset.find_by_order((k - 1) / 2)).first << " ";
+            er(v[i - k]);
+            ins(v[i]);
         }
+        cout << *low.rbegin() << " ";
     }
+    cout << "\n";
 }
 
 signed main()
