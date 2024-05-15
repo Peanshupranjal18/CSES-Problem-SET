@@ -1,24 +1,18 @@
 #include <bits/stdc++.h>
-#define intt long long int
-#define ll long long
-#define ld long double
-#define MOD 1000000007
 using namespace std;
+#define intt long long
 
-int main()
+void solve()
 {
-    ios_base::sync_with_stdio(false);
-    cin.tie(0);
-    cout.tie(0);
     intt n, x;
     cin >> n >> x;
     vector<intt> v(n);
-    for (intt i = 0; i < n; i++)
-    {
-        cin >> v[i];
-    }
 
-    vector<intt> dp(x + 1, INT_MAX);
+    for (intt i = 0; i < n; i++)
+        cin >> v[i];
+
+    vector<intt> dp(x + 1, LLONG_MAX);
+
     dp[0] = 0;
 
     for (intt i = 1; i <= x; i++)
@@ -31,11 +25,12 @@ int main()
             }
         }
     }
-
-    intt ans = dp[x] == INT_MAX ? -1 : dp[x];
-    if (ans == INT_MAX)
-        ans = -1;
+    intt ans = (dp[x] == LLONG_MAX) ? -1 : dp[x];
     cout << ans << "\n";
+}
 
+signed main()
+{
+    solve();
     return 0;
 }
