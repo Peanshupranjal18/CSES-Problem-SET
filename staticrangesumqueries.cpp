@@ -1,57 +1,65 @@
-#include <bits/stdc++.h>
-#define intt long long int
-#define ll long long
-#define ld long double
-#define MOD 1e9 + 7
+#include <iostream>
+#include <vector>
 using namespace std;
 
-// constructing the segment tree
+#define intt long long
 
-intt CST(intt ss, intt se, intt si, vector<intt> &v, vector<intt> &tree)
+vector<intt> v;
+vector<intt> segment_tree;
+
+intt build_segment_tree(intt ss, intt se, intt si)
 {
     if (ss == se)
     {
-        tree[si] = v[ss];
+        segment_tree[si] = v[ss];
         return v[ss];
     }
+
     intt mid = (ss + se) / 2;
-    tree[si] = CST(ss, mid, 2 * si + 1, v, tree) + CST(mid + 1, se, 2 * si + 2, v, tree);
-    return tree[si];
+
+    segment_tree[si] = build_segment_tree(ss, mid, 2 * si + 1) + build_segment_tree(mid + 1, se, 2 * si + 2);
+
+    return segment_tree[si];
 }
 
-// processing the query
-
-intt getSum(intt qs, intt qe, intt ss, intt se, intt si, vector<intt> &tree)
+intt get_sum(intt qs, intt qe, intt ss, intt se, intt si)
 {
-    if (se < qs or ss > qe)
+    if (qs > se || qe < ss)
         return 0;
-    if (qs <= ss and qe >= se)
-        return tree[si];
+    if (qs <= ss && qe >= se)
+        return segment_tree[si];
 
     intt mid = (ss + se) / 2;
-    return getSum(qs, qe, ss, mid, 2 * si + 1, tree) + getSum(qs, qe, mid + 1, se, 2 * si + 2, tree);
+
+    return get_sum(qs, qe, ss, mid, 2 * si + 1) + get_sum(qs, qe, mid + 1, se, 2 * si + 2);
 }
 
-int32_t main()
+void solve()
 {
-    ios_base::sync_with_stdio(false);
-    cin.tie(0);
-    cout.tie(0);
     intt n, q;
     cin >> n >> q;
-    vector<intt> v(n);
-    for (int i = 0; i < n; i++)
-    {
+
+    v.resize(n);
+
+    for (intt i = 0; i < n; i++)
         cin >> v[i];
-    }
-    vector<intt> tree(4 * n, 0);
-    CST(0, n - 1, 0, v, tree);
+
+    segment_tree.resize(4 * n, 0);
+
+    build_segment_tree(0, n - 1, 0);
+
     for (intt i = 0; i < q; i++)
     {
-        intt a, b;
-        cin >> a >> b;
-        cout << getSum(a - 1, b - 1, 0, n - 1, 0, tree) << "\n";
+        intt qs, qe;
+        cin >> qs >> qe;
+        cout << get_sum(qs - 1, qe - 1, 0, n - 1, 0) << "\n";
     }
 
+    return;
+}
+
+signed main()
+{
+    solve();
     return 0;
 }
