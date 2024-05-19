@@ -19,14 +19,20 @@ void solve()
     {
         for (intt j = 0; j < n; j++)
         {
-            if (v[j] <= i)
+            if (i >= v[j])
             {
-                dp[i] = min(dp[i], 1 + dp[i - v[j]]);
+                dp[i] = min(dp[i], dp[i - v[j]] + 1);
             }
         }
     }
-    intt ans = (dp[x] == LLONG_MAX) ? -1 : dp[x];
-    cout << ans << "\n";
+
+    if (dp[x] == LLONG_MAX)
+    {
+        cout << -1 << '\n';
+        return;
+    }
+
+    cout << dp[x] << "\n";
 }
 
 signed main()
