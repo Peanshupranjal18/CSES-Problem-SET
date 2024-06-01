@@ -1,178 +1,120 @@
-// places where the monsters can reach before the person, can be considered to be as good as blocked,so first run a multisource bfs with all the monsters to find the time taken to reach all non blocked cells by the monsters then run a bfs using the persons position to find the time taken by the person to reach there finally if there is any boundary cell such that the person can reach it before the monsters,.. then print the path to it otherwise print impossible
-
 #include <bits/stdc++.h>
 using namespace std;
-typedef long long ll;
-typedef long double ld;
-#define fastio                        \
-    ios_base::sync_with_stdio(false); \
-    cin.tie(NULL);                    \
-    cout.tie(NULL)
-#define max3(a, b, c) max(max(a, b), c)
-#define max4(a, b, c, d) max(max(a, b), max(c, d))
-#define fr(i, n) for (ll i = 0; i < n; i++)
-ll gcd(ll a, ll b)
-{
-    return b == 0 ? a : gcd(b, a % b);
-}
-ll dx[] = {-1, 1, 0, 0};
-ll dy[] = {0, 0, -1, 1};
-bool issafe(ll x, ll y, ll n, ll m)
-{
-    return ((0 <= x) && (x < n)) && ((0 <= y) && (y < m));
-}
-char pro(pair<ll, ll> a, pair<ll, ll> b)
-{
-    if ((a.second + 1) == (b.second))
-    {
-        return 'R';
-    }
-    else if ((a.second - 1) == (b.second))
-    {
-        return 'L';
-    }
-    else if ((a.first - 1) == (b.first))
-    {
-        return 'U';
-    }
-    else
-        return 'D';
-}
+#define pi (3.141592653589)
+#define mod 1000000007
+#define float double
+#define pb push_back
+#define mp make_pair
+#define ff first
+#define ss second
+#define all(c) c.begin(), c.end()
+#define min3(a, b, c) min(c, min(a, b))
+#define min4(a, b, c, d) min(d, min(c, min(a, b)))
+#define rrep(i, n) for (int i = n - 1; i >= 0; i--)
+#define rep(i, n) for (int i = 0; i < n; i++)
+#define fast ios_base::sync_with_stdio(false), cin.tie(nullptr), cout.tie(nullptr);
+
+vector<string> v;
+int n, m;
+// for monsters
+int dist[1001][1001];
+// for player
+int d[1001][1001];
+// movement
+int dx[4] = {0, 0, -1, 1};
+int dy[4] = {-1, 1, 0, 0};
+
 int main()
 {
-    fastio;
-    ll t = 1;
+    fast int t = 1;
     // cin >> t;
     while (t--)
     {
-        ll n, m;
+        rep(i, 1001) rep(j, 1001) dist[i][j] = -1;
         cin >> n >> m;
-        vector<string> v(n);
-        for (auto &i : v)
-            cin >> i;
-        queue<pair<ll, ll>> q;
-        vector<vector<ll>> dist(n, vector<ll>(m, LLONG_MAX));
-        vector<vector<bool>> vis(n, vector<bool>(m, false));
-        for (ll i = 0; i < n; i++)
+        for (int i = 0; i < n; i++)
         {
-            for (ll j = 0; j < m; j++)
+            string x;
+            cin >> x;
+            v.pb(x);
+        }
+        int x, y, c1, c2;
+        queue<vector<int>> q;
+        rep(i, n)
+        {
+            rep(j, m)
             {
                 if (v[i][j] == 'M')
-                {
-                    q.push({i, j});
-                    dist[i][j] = 0;
-                    vis[i][j] = true;
-                }
-            }
-        }
-        while (q.size() > 0)
-        {
-            auto z = q.front();
-            ll x = z.first;
-            ll y = z.second;
-            q.pop();
-            for (ll i = 0; i < 4; i++)
-            {
-                ll nx = x + dx[i];
-                ll ny = y + dy[i];
-                if ((issafe(nx, ny, n, m) && (v[nx][ny] != '#')) && (!vis[nx][ny]))
-                {
-                    dist[nx][ny] = dist[x][y] + 1;
-                    vis[nx][ny] = true;
-                    q.push({nx, ny});
-                }
-            }
-        }
-        vector<vector<ll>> dista(n, vector<ll>(m, LLONG_MAX));
-        vector<vector<bool>> vista(n, vector<bool>(m, false));
-        queue<pair<ll, ll>> qa;
-        map<pair<ll, ll>, pair<ll, ll>> par;
-        for (ll i = 0; i < n; i++)
-        {
-            for (ll j = 0; j < m; j++)
-            {
+                    q.push({i, j, 0});
                 if (v[i][j] == 'A')
-                {
-                    qa.push({i, j});
-                    dista[i][j] = 0;
-                    vista[i][j] = true;
-                    par[{i, j}] = {i, j};
-                }
+                    c1 = i, c2 = j;
             }
         }
-        while (qa.size() > 0)
+        x = c1, y = c2;
+        // shortest path calculation for monsters
+        while (!q.empty())
         {
-            auto z = qa.front();
-            ll x = z.first;
-            ll y = z.second;
-            qa.pop();
-            for (ll i = 0; i < 4; i++)
+            auto curr = q.front();
+            q.pop();
+            int x = curr[0], y = curr[1], steps = curr[2];
+            if (x < 0 || x > n - 1 || y < 0 || y > m - 1 || v[x][y] == '#' || dist[x][y] != -1)
+                continue;
+            dist[x][y] = steps;
+            rep(i, 4)
             {
-                ll nx = x + dx[i];
-                ll ny = y + dy[i];
-                if (((issafe(nx, ny, n, m) && v[nx][ny] != '#')) && (!vista[nx][ny]))
-                {
-                    dista[nx][ny] = dista[x][y] + 1;
-                    vista[nx][ny] = true;
-                    qa.push({nx, ny});
-                    par[{nx, ny}] = {x, y};
-                }
+                int cx = x + dx[i], cy = y + dy[i];
+                q.push({cx, cy, steps + 1});
             }
         }
-        vector<pair<ll, ll>> res;
-        bool f = true;
-        for (ll i = 0; i < n; i++)
+        string ans;
+        while (!q.empty())
+            q.pop();
+        q.push({x, y, 0, 0});
+        rep(i, 1001) rep(j, 1001) d[i][j] = -1;
+        bool c = false;
+        int p[n + 1][m + 1];
+        memset(p, 0, sizeof(p));
+        while (!q.empty())
         {
-            for (ll j = 0; j < m; j++)
+            auto curr = q.front();
+            q.pop();
+            int x = curr[0], y = curr[1], steps = curr[2], dir = curr[3];
+            if (x < 0 || x > n - 1 || y < 0 || y > m - 1 || v[x][y] == '#' || d[x][y] != -1 || (dist[x][y] >= 0 and dist[x][y] <= steps))
+                continue;
+            if (x == n - 1 || y == m - 1 || x == 0 || y == 0)
             {
-                if (((i == 0) || (j == 0)) || ((i == n - 1) || (j == m - 1)))
+                p[x][y] = dir;
+                while (x != c1 or y != c2)
                 {
-                    if (dista[i][j] < dist[i][j])
-                    {
-                        pair<ll, ll> z = {i, j};
-                        while (par[z] != z)
-                        {
-                            res.push_back(z);
-                            z = par[z];
-                        }
-                        res.push_back(z);
-                        f = false;
-                        break;
-                    }
+                    if (p[x][y] == 0)
+                        ans += 'L', y++; // path is from (x, y) to (x, y-1) so ans+='L' and (0=> {0, -1}) thats why y++.
+                    else if (p[x][y] == 1)
+                        ans += 'R', y--;
+                    else if (p[x][y] == 2)
+                        ans += 'U', x++;
+                    else
+                        ans += 'D', x--;
                 }
-            }
-            if (!f)
-            {
+                reverse(ans.begin(), ans.end());
+                c = true;
                 break;
             }
-        }
-        // for (auto &i : res)
-        // {
-        //     cout << i.first << " " << i.second << "\n";
-        // }
-        if (!f)
-        {
-            cout << "YES\n";
-            ll x = res.size();
-            cout << x - 1 << "\n";
-            reverse(res.begin(), res.end());
-            for (ll i = 0; i < x - 1; i++)
+            d[x][y] = steps;
+            p[x][y] = dir;
+            rep(i, 4)
             {
-                char ch = pro(res[i], res[i + 1]);
-                cout << ch;
+                int cx = x + dx[i], cy = y + dy[i];
+                q.push({cx, cy, steps + 1, i});
             }
         }
-        else
+        if (c)
         {
-            cout << "NO\n";
+            cout << "YES" << endl
+                 << ans.size() << endl
+                 << ans;
         }
-        // for (auto &i : dist)
-        // {
-        //     for (auto &j : i)
-        //     {
-        //         cout << j << " ";
-        //     }
-        //     cout << "\n";
-        // }
+        else
+            cout << "NO" << endl;
     }
+    return 0;
 }
