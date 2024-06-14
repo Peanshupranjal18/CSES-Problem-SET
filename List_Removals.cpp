@@ -1,36 +1,3 @@
-// // #include <bits/stdc++.h>
-// // #include <ext/rope>
-// // using namespace std;
-// // using namespace __gnu_cxx;
-
-// // int n;
-// // rope<int> x;
-
-// // int main()
-// // {
-// //     ios::sync_with_stdio(false);
-// //     cin.tie(nullptr);
-
-// //     cin >> n;
-// //     for (int i = 0; i < n; i++)
-// //     {
-// //         int t;
-// //         cin >> t;
-// //         x.push_back(t);
-// //     }
-
-// //     for (int i = 0; i < n; i++)
-// //     {
-// //         int p;
-// //         cin >> p;
-// //         --p;
-// //         cout << x[p] << " ";
-// //         x.erase(x.mutable_begin() + p);
-// //     }
-
-// //     return 0;
-// // }
-
 // #include <bits/stdc++.h>
 // using namespace std;
 
@@ -141,3 +108,69 @@ int main()
 
     return 0;
 }
+
+// #include <iostream>
+// #include <vector>
+// using namespace std;
+
+// vector<int> information; // stores the actual array with our data
+// vector<int> results;
+
+// struct Node
+// {
+//     int left, right, count;
+//     Node *left_child, *right_child;
+
+//     Node(int l, int r) : left(l), right(r), count(r - l + 1), left_child(nullptr), right_child(nullptr)
+//     {
+//         if (left != right)
+//         {
+//             int mid = (left + right) / 2;
+//             left_child = new Node(left, mid);
+//             right_child = new Node(mid + 1, right);
+//         }
+//     }
+
+//     void remove(int index)
+//     {
+//         count--;
+//         if (left == right)
+//         {
+//             results.push_back(information[left]);
+//         }
+//         else if (left_child->count > index)
+//         {
+//             left_child->remove(index);
+//         }
+//         else
+//         {
+//             right_child->remove(index - left_child->count);
+//         }
+//     }
+// };
+
+// int main()
+// {
+//     int n;
+//     cin >> n;
+//     information.resize(n);
+//     for (int i = 0; i < n; ++i)
+//     {
+//         cin >> information[i];
+//     }
+
+//     Node root(0, n - 1);
+//     for (int i = 0; i < n; ++i)
+//     {
+//         int index;
+//         cin >> index;
+//         root.remove(index - 1); // converting 1-indexed to 0-indexed
+//     }
+
+//     for (int i = 0; i < n; ++i)
+//     {
+//         cout << results[i] << " \n"[i == n - 1];
+//     }
+
+//     return 0;
+// }
