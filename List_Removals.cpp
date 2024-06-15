@@ -32,78 +32,74 @@
 
 #include <iostream>
 #include <vector>
-#include <cassert>
 #include <algorithm>
 using namespace std;
 
-const int MAX_SIZE = 2e5 + 5;
-
-struct BIT
+// Function to update the Binary Indexed Tree (BIT)
+void updateBIT(vector<int> &bit, int index, int value, int maxSize)
 {
-    int value = 0;
-    void update(int val) { value += val; }
-    int query() { return value; }
-};
-
-struct BIT_2D
-{
-    BIT bit[MAX_SIZE];
-
-    void update(int pos, int val)
+    while (index <= maxSize)
     {
-        assert(pos > 0);
-        for (; pos < MAX_SIZE; pos += pos & -pos)
-            bit[pos].update(val);
+        bit[index] += value;
+        index += index & -index; // Move to the next index
     }
-
-    int sum(int r)
-    {
-        int result = 0;
-        for (; r; r -= r & -r)
-            result += bit[r].query();
-        return result;
-    }
-
-    int query(int l, int r)
-    {
-        return sum(r) - sum(l - 1);
-    }
-};
-
-int get_kth(const BIT_2D &bit, int target)
-{
-    assert(target > 0);
-    int index = 0;
-    for (int i = 1 << 17; i; i /= 2)
-        if (index + i < MAX_SIZE && bit.bit[index + i].value < target)
-            target -= bit.bit[index += i].value;
-    assert(index < MAX_SIZE);
-    return index + 1;
 }
 
-BIT_2D binaryIndexedTree;
-int numberOfElements;
+// Function to get the sum from the start to the given index
+int sumBIT(const vector<int> &bit, int index)
+{
+    int sum = 0;
+    while (index > 0)
+    {
+        sum += bit[index];
+        index -= index & -index; // Move to the previous index
+    }
+    return sum;
+}
+
+// Function to find the k-th element in the BIT
+int getKthElement(const vector<int> &bit, int target, int maxSize)
+{
+    int index = 0;
+    int bitMask = maxSize;
+    while (bitMask != 0 && index < maxSize)
+    {
+        int tIndex = index + bitMask;
+        if (target > bit[tIndex])
+        {
+            index = tIndex;
+            target -= bit[tIndex];
+        }
+        bitMask >>= 1;
+    }
+    return index + 1;
+}
 
 int main()
 {
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
 
+    int numberOfElements;
     cin >> numberOfElements;
     vector<int> elements(numberOfElements);
+    vector<int> bit(numberOfElements + 1, 0); // BIT initialized to 0
+
+    // Read elements and update the BIT
     for (int i = 0; i < numberOfElements; ++i)
     {
         cin >> elements[i];
-        binaryIndexedTree.update(i + 1, 1);
+        updateBIT(bit, i + 1, 1, numberOfElements);
     }
 
+    // Process the positions to remove elements
     for (int i = 0; i < numberOfElements; ++i)
     {
         int position;
         cin >> position;
-        int index = get_kth(binaryIndexedTree, position);
+        int index = getKthElement(bit, position, numberOfElements);
         cout << elements[index - 1] << " ";
-        binaryIndexedTree.update(index, -1);
+        updateBIT(bit, index, -1, numberOfElements); // Remove the element from BIT
     }
 
     return 0;
